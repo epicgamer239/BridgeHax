@@ -38,7 +38,7 @@
 
 ### 1.1 Theme alignment (BRIDGE)
 
-The product "bridges" visual perception into a **real-time guidance stream**. In the shipped build, that bridge is expressed as **spoken awareness** — class, direction, and estimated distance — rather than persistent spatial audio objects. The metaphor remains: the phone perceives; the user hears what matters.
+The product **bridges** the visual world to spoken awareness. In the shipped build, this bridge is expressed as **spoken guidance** — class, direction, and estimated distance — rather than persistent spatial audio objects. The metaphor is clear: the phone sees; the user hears what matters, connecting the sighted world to those who cannot see.
 
 ### 1.2 Safety disclaimer (required everywhere)
 

@@ -29,7 +29,7 @@ class HapticManager {
         return d.bool(forKey: VisionBridgeFeatureKey.haptics)
     }
     
-    /// Triggered when a new 'audio cue' enters the radar
+    /// Triggered when a new detected object enters the radar
     func triggerDiscovery() {
         guard Self.hapticsOn else { return }
         impactLight.impactOccurred()

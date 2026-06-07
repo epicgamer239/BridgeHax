@@ -24,7 +24,7 @@ This file is **append-only** (add new entries at the **top**). It records **visi
 
 - **Threat prompt / canonical + CoreML in repo:** long CLIP disambiguation for **trash can** (vs hand bottle), stricter `min conf` and **min bbox height** for that class; Python and iOS aligned. `python3 scripts/export_coreml.py` (with `certifi` for SSL) produced **`App/yolo_world_s.mlpackage`**.
 
-- **Hearing (iOS `App/HearingEngine`):** removed tone **beeps** / `AVAudioEngine` clones; **spoken class names** (throttled) when **Say each object’s name** is on, optional **distance** when **Add distance in speech** is on; when the first is off, only **high-priority** lines if distance speech is on.
+- **Hearing (iOS `App/HearingEngine`):** removed tone **beeps** / spatial audio tones; **spoken class names** (throttled) when **Say each object’s name** is on, optional **distance** when **Add distance in speech** is on; when the first is off, only **high-priority** lines if distance speech is on.
 
 - **iOS live preview:** `VisionBridgeKit` **`CameraPipeline.captureSession`** + **`App/CameraFeedPreview.swift`** (`AVCaptureVideoPreviewLayer`); **`ContentView`** shows **“Live camera”** while **Start camera** (same session as YOLO ingest).
 

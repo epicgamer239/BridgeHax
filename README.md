@@ -26,7 +26,7 @@
 
 **VisionBridge** is an on-device iOS accessibility engine that uses the iPhone camera and CoreML object detection to identify nearby obstacles and hazards, then speaks concise, directional guidance through **text-to-speech (TTS)**.
 
-It "bridges" visual perception into a real-time **spoken awareness stream** — class, direction, and **estimated distance** — with priority gating, haptics, and a live radar HUD.
+It **bridges** the visual world to spoken awareness — transforming what the camera sees into real-time guidance about class, direction, and **estimated distance** — with priority gating, haptics, and a live radar HUD.
 
 > **Assistive, not a replacement** for a white cane, guide dog, or orientation & mobility training. All distances are estimates. See [PRD.md](PRD.md) for the full specification.
 
