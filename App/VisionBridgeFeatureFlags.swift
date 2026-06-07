@@ -3,16 +3,16 @@ import Foundation
 /// `UserDefaults` keys for the Settings menu. All features default **on** (first launch).
 /// Settings writes these; engines read them (Hearing, haptics, HUD).
 enum VisionBridgeFeatureKey {
-    static let hearingTones = "dualsight.feature.hearingTones"
-    static let hearingTTS = "dualsight.feature.hearingTTS"
-    static let ttsCriticalOnly = "dualsight.feature.ttsCriticalOnly"
-    static let distanceUnits = "dualsight.feature.distanceUnits"
-    static let ttsVoiceStyle = "dualsight.feature.ttsVoiceStyle"
-    static let ttsVerbosity = "dualsight.feature.ttsVerbosity"
-    static let ttsTelemetryEnabled = "dualsight.feature.ttsTelemetryEnabled"
-    static let suppressedClassesCSV = "dualsight.feature.suppressedClassesCSV"
-    static let haptics = "dualsight.feature.haptics"
-    static let payloadHUD = "dualsight.feature.payloadHUD"
+    static let hearingTones = "bridgehax.feature.hearingTones"
+    static let hearingTTS = "bridgehax.feature.hearingTTS"
+    static let ttsCriticalOnly = "bridgehax.feature.ttsCriticalOnly"
+    static let distanceUnits = "bridgehax.feature.distanceUnits"
+    static let ttsVoiceStyle = "bridgehax.feature.ttsVoiceStyle"
+    static let ttsVerbosity = "bridgehax.feature.ttsVerbosity"
+    static let ttsTelemetryEnabled = "bridgehax.feature.ttsTelemetryEnabled"
+    static let suppressedClassesCSV = "bridgehax.feature.suppressedClassesCSV"
+    static let haptics = "bridgehax.feature.haptics"
+    static let payloadHUD = "bridgehax.feature.payloadHUD"
 }
 
 enum VisionBridgeFeatureFlags {

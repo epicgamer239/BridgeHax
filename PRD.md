@@ -81,10 +81,10 @@ This disclaimer must appear in: PRD, README, onboarding, in-app safety strip (`C
 
 ### 2.1 First-run flow (**Shipped**)
 
-1. **Onboarding** (`OnboardingView`) — 3-page intro; user taps through to "Initialize Bridge."
+1. **Onboarding** (`OnboardingView`) — 3-page intro; user taps through to "Start VisionBridge."
 2. **Auto-start scan** — If CoreML model is bundled, scanning begins on dashboard appear (`ContentView`).
 3. **Live dashboard** — Radar visualization, threat indicator, optional payload HUD, settings access.
-4. **Stop scan** — User stops via scan control; hears "Bridge deactivated."
+4. **Stop scan** — User stops via scan control; hears "VisionBridge scan stopped."
 
 > **Planned:** Optional "Lanyard Mode" — fullscreen minimal status dot only (PRD v1 described this; not shipped).
 

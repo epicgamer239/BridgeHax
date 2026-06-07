@@ -3,7 +3,7 @@ import os
 
 public final class TelemetryRecorder {
     public static let shared = TelemetryRecorder()
-    private let log = OSLog(subsystem: "com.dualsight", category: "lidar")
+    private let log = OSLog(subsystem: "com.bridgehax", category: "lidar")
 
     private init() {}
 

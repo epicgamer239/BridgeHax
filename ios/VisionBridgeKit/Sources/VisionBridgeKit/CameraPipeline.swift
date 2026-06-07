@@ -42,9 +42,9 @@ public final class CameraPipeline: NSObject, ObservableObject, AVCaptureVideoDat
         self.vision = vision
         self.imageOrientation = imageOrientation
         self.session = AVCaptureSession()
-        self.sessionQueue = DispatchQueue(label: "com.dualsight.capture.session", qos: .userInitiated)
+        self.sessionQueue = DispatchQueue(label: "com.bridgehax.capture.session", qos: .userInitiated)
         // Keep camera delivery off the main queue; slightly higher QoS for smoother start under load.
-        self.bufferQueue = DispatchQueue(label: "com.dualsight.capture.buffer", qos: .userInteractive)
+        self.bufferQueue = DispatchQueue(label: "com.bridgehax.capture.buffer", qos: .userInteractive)
         super.init()
         let guardRef = ThermalStereoGuard()
         guardRef.onShouldDisableStereo = { [weak self] in

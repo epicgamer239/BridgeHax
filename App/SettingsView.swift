@@ -14,7 +14,7 @@ struct SettingsView: View {
     @AppStorage(VisionBridgeFeatureKey.suppressedClassesCSV) private var suppressedClassesCSV: String = ""
     @AppStorage(VisionBridgeFeatureKey.haptics) private var haptics: Bool = true
     @AppStorage(VisionBridgeFeatureKey.payloadHUD) private var payloadHUD: Bool = true
-    @AppStorage("dualsight.visionBridgeBaseURLString") private var bridgeURLString: String = "http://127.0.0.1:8765"
+    @AppStorage("bridgehax.visionBridgeBaseURLString") private var bridgeURLString: String = "http://127.0.0.1:8765"
     @AppStorage("shouldShowOnboarding") private var shouldShowOnboarding: Bool = true
     @State private var showOptionalComputer: Bool = false
     @State private var telemetryShareURL: URL?

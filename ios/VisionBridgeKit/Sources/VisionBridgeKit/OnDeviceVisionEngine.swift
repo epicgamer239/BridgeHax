@@ -36,7 +36,7 @@ public final class OnDeviceVisionEngine: @unchecked Sendable {
         )
         self.tracker = tr
         self.workQueue = DispatchQueue(
-            label: "com.dualsight.vision",
+            label: "com.bridgehax.vision",
             qos: .userInitiated
         )
         tr.onStalePrune = { [weak self] count in

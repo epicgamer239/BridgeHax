@@ -57,10 +57,10 @@ To ensure the app feels like a premium product for the judges:
 
 ### App Icon
 1. Open **Assets.xcassets** -> **AppIcon**.
-2. Drag the **dualsight_app_icon** into the 1024px universal slot.
+2. Drag the **bridgehax_app_icon** into the 1024px universal slot.
 3. In the Attributes Inspector, set **Devices** to "Single Size" for quick setup.
 
 ### Launch Screen
-1. Drag **dualsight_splash_logo** into **Assets.xcassets** and name it `LaunchLogo`.
+1. Drag **bridgehax_splash_logo** into **Assets.xcassets** and name it `LaunchLogo`.
 2. In the app target **Info** tab, add a **Launch Screen** dictionary.
 3. Inside it, add **Image Name** = `LaunchLogo` and **Background Color** = `Black`.

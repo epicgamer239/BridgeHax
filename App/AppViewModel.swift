@@ -66,11 +66,11 @@ final class AppViewModel: ObservableObject {
             camera?.stop()
             camera = nil
             session?.clearPayload()
-            hearing.speakImmediate("Bridge deactivated")
+            hearing.speakImmediate("VisionBridge scan stopped")
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             return
         }
-        hearing.speakImmediate("Ocular sync active")
+        hearing.speakImmediate("VisionBridge scan active")
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         #if os(iOS)
         guard let s = session else { return }

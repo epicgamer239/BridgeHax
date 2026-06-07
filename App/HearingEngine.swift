@@ -36,7 +36,7 @@ final class HearingEngine: NSObject, ObservableObject, AVSpeechSynthesizerDelega
     private let phraseBuilder = PhraseBuilder()
     private var distanceAssessor = DistanceConfidenceAssessor(alpha: 0.3)
     private var dedupePolicy = DedupePolicy(idCooldown: 7.0, classCooldown: 4.0)
-    private let workQueue = DispatchQueue(label: "com.dualsight.hearing.work", qos: .userInitiated)
+    private let workQueue = DispatchQueue(label: "com.bridgehax.hearing.work", qos: .userInitiated)
     private var speechTimer: DispatchSourceTimer?
 
     // Scheduling buffers: high is stack (LIFO), normal is queue (FIFO).
@@ -95,7 +95,7 @@ final class HearingEngine: NSObject, ObservableObject, AVSpeechSynthesizerDelega
     private static let minConfidenceForSpeech: Double = 0.62
     /// Debounce transient detections before first spoken cue.
     private let minStableFramesForSpeech = 3
-    private static let bridgeURLKey = "dualsight.visionBridgeBaseURLString"
+    private static let bridgeURLKey = "bridgehax.visionBridgeBaseURLString"
 
     static var defaultBridgeBaseURL: URL { URL(string: "http://127.0.0.1:8765")! }
 
