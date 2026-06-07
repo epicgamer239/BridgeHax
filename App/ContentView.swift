@@ -232,14 +232,16 @@ struct ContentView: View {
                     app.setScanning(!app.isScanning)
                 }
             } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: app.isScanning ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 28, weight: .semibold))
-                    Text(app.isScanning ? "Stop Bridge" : "Start Bridge")
-                        .font(.headline.weight(.semibold))
+                VStack(spacing: 16) {
+                    Image(systemName: app.isScanning ? "eye.slash.circle.fill" : "eye.circle.fill")
+                        .font(.system(size: 48, weight: .bold))
+                    Text(app.isScanning ? "STOP BRIDGE" : "START BRIDGE")
+                        .font(.title2.weight(.black))
+                        .tracking(1.5)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .frame(height: app.isScanning ? 88 : min(560, UIScreen.main.bounds.height * 1.00))
+                .padding(.vertical, app.isScanning ? 12 : 0)
             }
             .buttonStyle(PrimaryDockButtonStyle(isOn: app.isScanning, enabled: app.modelAvailable))
             .disabled(!app.modelAvailable)
@@ -256,7 +258,17 @@ struct ContentView: View {
         }
     }
 
-    private var dockBottomPadding: CGFloat { 100 }
+    // Dock sizing helpers
+    private var dockExpandedHeight: CGFloat {
+        min(560, UIScreen.main.bounds.height * 1.00)
+    }
+
+    private var dockCollapsedHeight: CGFloat { 88 }
+
+    private var dockBottomPadding: CGFloat {
+        // Add a little extra spacing so content doesn't butt right up to the dock
+        (app.isScanning ? dockCollapsedHeight : dockExpandedHeight) + 24
+    }
 }
 
 // MARK: - Subviews
