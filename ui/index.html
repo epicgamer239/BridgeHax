@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionBridge | Judge Debug Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="logo">
+                <div class="status-dot"></div>
+                <h1>BLINDGUY</h1>
+            </div>
+            <div class="status-badge">
+                Scanning Active
+            </div>
+            <button class="lanyard-toggle" onclick="toggleLanyard()">Lanyard Mode</button>
+        </header>
+
+        <aside class="sidebar left">
+            <div class="stat-card">
+                <div class="stat-label">System Health</div>
+                <div class="stat-value">OPERATIONAL</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">End-to-End Latency</div>
+                <div class="stat-value"><span id="latency">--</span> ms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Objects in Frame</div>
+                <div class="stat-value" id="obj-count">0</div>
+            </div>
+            <div class="stat-card" style="border-color: var(--warning);">
+                <div class="stat-label">Threat Level</div>
+                <div class="stat-value" id="threat-level">LOW</div>
+            </div>
+        </aside>
+
+        <main class="viewport">
+            <div id="mock-feed" style="position: absolute; color: #333; font-weight: 800; font-size: 40px; opacity: 0.1; letter-spacing: 20px;">
+                LIVE FEED
+            </div>
+            <canvas id="radar-canvas" class="radar-overlay"></canvas>
+        </main>
+
+        <aside class="sidebar right">
+            <div class="stat-card">
+                <div class="stat-label">Vision Engine (YOLOv8m · Open Images V7)</div>
+                <div class="stat-value" id="vision-fps">-- FPS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Audio Engine (HRTF)</div>
+                <div class="stat-value">3D SPATIALIZED</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Clone Threads</div>
+                <div class="stat-value" id="thread-count">0</div>
+            </div>
+        </aside>
+
+        <div class="json-feed" id="json-display">
+            Initializing telemetry stream...
+        </div>
+    </div>
+
+    <div class="lanyard-ui" id="lanyard-screen" onclick="toggleLanyard()">
+        <div class="big-status" style="color: var(--accent);">●</div>
+        <div class="big-label">SCANNING ACTIVE</div>
+        <div style="margin-top: 40px; color: #444; font-size: 14px;">Tap to return to Debug Dashboard</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
