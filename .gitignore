@@ -5,6 +5,7 @@ yolov8m-oiv7.pt
 yolov8n.pt
 yolov8s-worldv2.pt
 yoloe-26n-seg.pt
+AGENTS.md
 
 # Export/build caches and local artifacts
 scripts/.yoloe_export_work/
