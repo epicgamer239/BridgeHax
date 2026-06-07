@@ -62,9 +62,10 @@ final class AppViewModel: ObservableObject {
     func setScanning(_ on: Bool) {
         isScanning = on
         applyVisionSpeechPolicy()
+        #if os(iOS)
+        camera?.isProcessingEnabled = on
+        #endif
         guard on else {
-            camera?.stop()
-            camera = nil
             session?.clearPayload()
             hearing.speakImmediate("Bridge stopped")
             UINotificationFeedbackGenerator().notificationOccurred(.success)
@@ -72,8 +73,13 @@ final class AppViewModel: ObservableObject {
         }
         hearing.speakImmediate("Bridge active")
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+        ensureCameraPreview()
+    }
+
+    /// Starts the camera for the square preview; vision runs only while `isScanning` is true.
+    func ensureCameraPreview() {
         #if os(iOS)
-        guard let s = session else { return }
+        guard modelAvailable, let s = session else { return }
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status == .denied || status == .restricted {
             hearing.announceSystemMessageOnce(
@@ -83,14 +89,22 @@ final class AppViewModel: ObservableObject {
             return
         }
         if camera == nil { camera = CameraPipeline(vision: s) }
+        camera?.isProcessingEnabled = isScanning
         Task {
             try? await camera?.start()
         }
         #endif
     }
 
+    func stopCameraPreview() {
+        #if os(iOS)
+        camera?.stop()
+        camera = nil
+        #endif
+    }
+
     #if os(iOS)
-    /// Live camera preview; only non-`nil` while scanning with an on-device model (same graph as `VisionBridgeSession`).
+    /// Live camera preview session (same graph as `VisionBridgeSession` when processing is enabled).
     var captureSessionForPreview: AVCaptureSession? { camera?.captureSession }
     #endif
 }

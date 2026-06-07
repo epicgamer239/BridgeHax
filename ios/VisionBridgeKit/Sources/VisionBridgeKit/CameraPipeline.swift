@@ -29,8 +29,24 @@ public final class CameraPipeline: NSObject, ObservableObject, AVCaptureVideoDat
     private var configured = false
     private var captureDevice: AVCaptureDevice?
     private var thermalStereoGuard: ThermalStereoGuard?
+    private let processingLock = NSLock()
+    private var processingEnabled = true
 
     @Published public private(set) var isRunning = false
+
+    /// When `false`, frames still drive the preview layer but are not sent to vision (preview-only mode).
+    public var isProcessingEnabled: Bool {
+        get {
+            processingLock.lock()
+            defer { processingLock.unlock() }
+            return processingEnabled
+        }
+        set {
+            processingLock.lock()
+            processingEnabled = newValue
+            processingLock.unlock()
+        }
+    }
 
     /// The same `AVCaptureSession` that drives vision. Attach an `AVCaptureVideoPreviewLayer` in the app to show a live viewfinder.
     public var captureSession: AVCaptureSession { session }
@@ -147,6 +163,11 @@ public final class CameraPipeline: NSObject, ObservableObject, AVCaptureVideoDat
         didOutput sampleBuffer: CMSampleBuffer,
         from _: AVCaptureConnection
     ) {
+        processingLock.lock()
+        let shouldProcess = processingEnabled
+        processingLock.unlock()
+        guard shouldProcess else { return }
+
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         guard let device = captureDevice else { return }
         let o = imageOrientation

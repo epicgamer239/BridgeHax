@@ -18,10 +18,7 @@ struct ContentView: View {
             } else {
                 mainDashboard
                     .onAppear {
-                        // Auto-start scanning if model is ready, reducing friction for blind users
-                        if app.modelAvailable && !app.isScanning {
-                            app.setScanning(true)
-                        }
+                        app.ensureCameraPreview()
                     }
                     .sheet(isPresented: $showingSettings) {
                         SettingsView()
@@ -31,6 +28,7 @@ struct ContentView: View {
         }
         .onDisappear {
             app.setScanning(false)
+            app.stopCameraPreview()
         }
     }
 
@@ -55,26 +53,23 @@ struct ContentView: View {
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
 
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 20) {
-                        safetyDisclaimer
-                        if speechMutedBanner {
-                            mutedBanner
-                        }
-                        if !app.modelAvailable { modelCallout }
-                        visualStage
-                        if showPayloadHUD, app.modelAvailable, let s = app.session {
-                            PayloadHUD(session: s, hapticsEnabled: hapticsOn)
-                                .padding(.horizontal, 4)
-                        }
+                VStack(alignment: .leading, spacing: 12) {
+                    safetyDisclaimer
+                    if speechMutedBanner {
+                        mutedBanner
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 4)
-                    .padding(.bottom, dockBottomPadding)
+                    if !app.modelAvailable { modelCallout }
+                    cameraPanel
+                    scanDock
+                    if showPayloadHUD, app.modelAvailable, let s = app.session {
+                        PayloadHUD(session: s, hapticsEnabled: hapticsOn)
+                            .padding(.horizontal, 4)
+                    }
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 4)
+                .padding(.bottom, 8)
             }
-            // Two-finger double-tap only on the main scroll area, not the whole window — a full-screen
-            // `UIView` overlay on `NavigationStack` was above the toolbar and swallowed log/settings taps.
             .overlay(alignment: .topLeading) {
                 TwoFingerDoubleTapCapture {
                     hearing.muteFor(seconds: 10)
@@ -132,7 +127,6 @@ struct ContentView: View {
             }
         }
         .tint(VisionBridgeTheme.accent)
-        .safeAreaInset(edge: .bottom) { scanDock }
         .preferredColorScheme(.dark)
     }
 
@@ -196,78 +190,73 @@ struct ContentView: View {
     }
 
     @ViewBuilder
-    private var visualStage: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            #if os(iOS)
-            if app.modelAvailable, app.isScanning, let session = app.captureSessionForPreview {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text("Camera feed")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Label("LIVE", systemImage: "record.circle.fill")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(VisionBridgeTheme.warmAlert)
-                    }
-                    CameraFeedPreview(session: session)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 220)
-                        .background(Color.black)
-                        .clipShape(RoundedRectangle(cornerRadius: VisionBridgeTheme.cornerL, style: .continuous))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: VisionBridgeTheme.cornerL, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
-                        }
+    private var cameraPanel: some View {
+        #if os(iOS)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Camera")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if app.isScanning {
+                    Label("LIVE", systemImage: "record.circle.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(VisionBridgeTheme.warmAlert)
                 }
             }
-            #endif
+            cameraSquare
         }
+        #endif
+    }
+
+    @ViewBuilder
+    private var cameraSquare: some View {
+        #if os(iOS)
+        ZStack {
+            Color.black
+            if app.modelAvailable, let session = app.captureSessionForPreview {
+                CameraFeedPreview(session: session)
+            } else {
+                VStack(spacing: 8) {
+                    Image(systemName: "camera.fill")
+                        .font(.title)
+                        .foregroundStyle(.secondary)
+                    Text(app.modelAvailable ? "Starting camera…" : "Camera preview unavailable")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+        .aspectRatio(1, contentMode: .fit)
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: VisionBridgeTheme.cornerL, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: VisionBridgeTheme.cornerL, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+        }
+        .accessibilityLabel(app.isScanning ? "Live camera feed" : "Camera preview")
+        #endif
     }
 
     private var scanDock: some View {
-        VStack(spacing: 0) {
-            Button {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) {
-                    app.setScanning(!app.isScanning)
-                }
-            } label: {
-                VStack(spacing: 16) {
-                    Image(systemName: app.isScanning ? "eye.slash.circle.fill" : "eye.circle.fill")
-                        .font(.system(size: 48, weight: .bold))
-                    Text(app.isScanning ? "STOP BRIDGE" : "START BRIDGE")
-                        .font(.title2.weight(.black))
-                        .tracking(1.5)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: app.isScanning ? 88 : min(560, UIScreen.main.bounds.height * 1.00))
-                .padding(.vertical, app.isScanning ? 12 : 0)
+        Button {
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.86)) {
+                app.setScanning(!app.isScanning)
             }
-            .buttonStyle(PrimaryDockButtonStyle(isOn: app.isScanning, enabled: app.modelAvailable))
-            .disabled(!app.modelAvailable)
-            .accessibilityLabel(app.isScanning ? "Stop Bridge" : "Start Bridge")
-            .accessibilityHint("Double tap to start or stop Bridge. When on, nearby objects are spoken automatically.")
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: app.isScanning ? "pause.circle.fill" : "play.circle.fill")
+                    .font(.system(size: 28, weight: .semibold))
+                Text(app.isScanning ? "Stop Bridge" : "Start Bridge")
+                    .font(.headline.weight(.semibold))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 8)
-        .padding(.bottom, 4)
-        .background {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .ignoresSafeArea(edges: .bottom)
-        }
-    }
-
-    // Dock sizing helpers
-    private var dockExpandedHeight: CGFloat {
-        min(560, UIScreen.main.bounds.height * 1.00)
-    }
-
-    private var dockCollapsedHeight: CGFloat { 88 }
-
-    private var dockBottomPadding: CGFloat {
-        // Add a little extra spacing so content doesn't butt right up to the dock
-        (app.isScanning ? dockCollapsedHeight : dockExpandedHeight) + 24
+        .buttonStyle(PrimaryDockButtonStyle(isOn: app.isScanning, enabled: app.modelAvailable))
+        .disabled(!app.modelAvailable)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityLabel(app.isScanning ? "Stop Bridge" : "Start Bridge")
+        .accessibilityHint("Double tap to start or stop Bridge. When on, nearby objects are spoken automatically.")
     }
 }
 

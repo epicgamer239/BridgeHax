@@ -3,8 +3,7 @@ import Foundation
 enum DetectionConfig {
     /// Classes treated as immediate mobility hazards for speech escalation.
     static let highPriorityClasses: Set<String> = [
-        "person", "car", "truck", "bus", "motorcycle", "bicycle",
-        "dog", "traffic light", "stairs", "chair", "couch", "bench"
+        "person", "stairs", "chair",
     ]
 
     /// Reasonable operating range for monocular distance.
