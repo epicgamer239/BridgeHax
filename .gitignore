@@ -1,0 +1,20 @@
+# Ultralytics weights (re-export CoreML with scripts/export_coreml.py)
+yolov8m-oiv7.pt
+
+# Legacy weights (do not commit)
+yolov8n.pt
+yolov8s-worldv2.pt
+yoloe-26n-seg.pt
+
+# Export/build caches and local artifacts
+scripts/.yoloe_export_work/
+**/__pycache__/
+*.py[cod]
+.DS_Store
+ios/VisionBridgeKit/.build/
+ios/VisionBridgeKit/.swiftpm/xcode/xcuserdata/
+VisionBridge/VisionBridge.xcodeproj/xcuserdata/
+VisionBridge/VisionBridge.xcodeproj/project.xcworkspace/xcuserdata/
+mobileclip2_b.ts
+.venv/
+.pytest_cache/
