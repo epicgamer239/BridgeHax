@@ -13,7 +13,7 @@ struct SettingsView: View {
     @AppStorage(VisionBridgeFeatureKey.ttsTelemetryEnabled) private var ttsTelemetryEnabled: Bool = false
     @AppStorage(VisionBridgeFeatureKey.suppressedClassesCSV) private var suppressedClassesCSV: String = ""
     @AppStorage(VisionBridgeFeatureKey.haptics) private var haptics: Bool = true
-    @AppStorage(VisionBridgeFeatureKey.payloadHUD) private var payloadHUD: Bool = true
+    @AppStorage(VisionBridgeFeatureKey.payloadHUD) private var payloadHUD: Bool = false
     @AppStorage("bridgehax.visionBridgeBaseURLString") private var bridgeURLString: String = "http://127.0.0.1:8765"
     @AppStorage("shouldShowOnboarding") private var shouldShowOnboarding: Bool = true
     @State private var showOptionalComputer: Bool = false
@@ -41,7 +41,7 @@ struct SettingsView: View {
                                 hearingTTS = true
                                 ttsVerbosity = "normal"
                                 ttsVoiceStyle = "clear"
-                                app.hearing.speakImmediate("Full ocular sync active")
+                                app.hearing.speakImmediate("Bridge active mode")
                             }
                             .accessibilityLabel("Preset: Active")
                             .accessibilityHint("Enables full-verbosity speech with clear distance estimates.")
@@ -63,7 +63,7 @@ struct SettingsView: View {
                     Section {
                         Toggle(isOn: $hearingTones) { Label("Identify Objects", systemImage: "text.bubble.fill") }
                             .accessibilityLabel("Identify Objects")
-                            .accessibilityHint("When enabled, the Auditory Twin will name every detected object.")
+                            .accessibilityHint("When enabled, Bridge will name every detected object.")
                         
                         Toggle(isOn: $hearingTTS) { Label("Speak Distance", systemImage: "ruler") }
                             .accessibilityLabel("Speak Distance")
@@ -77,7 +77,7 @@ struct SettingsView: View {
                     } header: {
                         sectionHeader("Hearing Engine", icon: "ear")
                     } footer: {
-                        Text("Configure how the 'Auditory Twin' communicates spatial telemetry.")
+                        Text("Configure how Bridge speaks detected objects and distances.")
                     }
 
                     Section {
@@ -161,7 +161,7 @@ struct SettingsView: View {
                     } header: {
                         sectionHeader("Advanced", icon: "hammer")
                     } footer: {
-                        Text("VisionBridge runs on this iPhone. No second device is required in normal use.")
+                        Text("Bridge runs on this iPhone. No second device is required in normal use.")
                     }
 
                     Section {

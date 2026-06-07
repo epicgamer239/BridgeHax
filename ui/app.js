@@ -98,7 +98,7 @@ function draw() {
         ctx.font = '12px JetBrains Mono';
         ctx.fillText(`${obj.class.toUpperCase()} [${obj.distance_m}m]`, x - w/2, y - h/2 - 5);
 
-        // Detection Pulse
+        // Detection pulse
         const pulseSize = (Math.sin(Date.now() / 200) + 1) * 5;
         ctx.beginPath();
         ctx.arc(x, y, 10 + pulseSize, 0, Math.PI * 2);

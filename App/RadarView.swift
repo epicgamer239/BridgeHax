@@ -59,7 +59,7 @@ struct RadarView: View {
             .clipped()
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Spatial field of view")
+        .accessibilityLabel("Nearby objects radar")
     }
 
     // MARK: - Helpers

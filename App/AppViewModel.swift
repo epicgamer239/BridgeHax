@@ -66,11 +66,11 @@ final class AppViewModel: ObservableObject {
             camera?.stop()
             camera = nil
             session?.clearPayload()
-            hearing.speakImmediate("VisionBridge scan stopped")
+            hearing.speakImmediate("Bridge stopped")
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             return
         }
-        hearing.speakImmediate("VisionBridge scan active")
+        hearing.speakImmediate("Bridge active")
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         #if os(iOS)
         guard let s = session else { return }
@@ -95,42 +95,3 @@ final class AppViewModel: ObservableObject {
     #endif
 }
 
-extension AppViewModel {
-    /// For dashboard cards
-    var threatLabel: String {
-        if !modelAvailable {
-            return hearing.alertActive ? "HIGH" : "LOW"
-        }
-        guard isScanning else { return "LOW" }
-        guard let p = session?.lastPayload, !p.objects.isEmpty else { return "LOW" }
-        if p.objects.contains(where: { $0.distanceM < 3.0 && abs($0.velocityMps) > 1.5 }) {
-            return "HIGH"
-        }
-        if p.objects.contains(where: { $0.priority.uppercased() == "HIGH" }) {
-            return "MED"
-        }
-        return "LOW"
-    }
-
-    var objectCount: Int {
-        if modelAvailable {
-            guard isScanning else { return 0 }
-            if let p = session?.lastPayload { return p.objects.count }
-            return 0
-        }
-        return hearing.objectCount
-    }
-
-    var latencyLine: String {
-        if modelAvailable, isScanning, let payload = session?.lastPayload {
-            // Use wall-clock round-trip from payload timestamp to now for an end-to-end latency
-            let nowMs = Int64(Date().timeIntervalSince1970 * 1000)
-            let diff = nowMs - payload.timestampMs
-            return "\(diff) ms"
-        }
-        if let b = hearing.lastBridgeLatencyMs, !hearing.isUsingOnDevicePayload {
-            return "∼\(b) ms"
-        }
-        return "—"
-    }
-}

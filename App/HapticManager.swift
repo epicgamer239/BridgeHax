@@ -1,12 +1,10 @@
 import UIKit
 
 /**
- * VisionBridge Haptic Manager
- * 
- * DESIGN PRINCIPLE:
- * For visually impaired users, haptics are the 'Physical UI'.
- * We use high-fidelity haptic patterns to represent the density 
- * and proximity of the Auditory Twin environment.
+ * Bridge Haptic Manager
+ *
+ * For visually impaired users, haptics are the physical UI.
+ * Patterns reflect object proximity and priority.
  */
 class HapticManager {
     static let shared = HapticManager()
@@ -29,7 +27,7 @@ class HapticManager {
         return d.bool(forKey: VisionBridgeFeatureKey.haptics)
     }
     
-    /// Triggered when a new detected object enters the radar
+    /// Triggered when a new object enters the radar
     func triggerDiscovery() {
         guard Self.hapticsOn else { return }
         impactLight.impactOccurred()

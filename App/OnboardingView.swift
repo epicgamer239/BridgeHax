@@ -7,7 +7,7 @@ struct OnboardingView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             title: "Spoken Awareness",
-            description: "VisionBridge uses your iPhone camera to detect people, vehicles, and obstacles ahead, then speaks what it sees with direction and estimated distance.",
+            description: "Bridge uses your iPhone camera to detect people, vehicles, and obstacles ahead, then speaks what it sees with direction and estimated distance.",
             icon: "person.badge.shield.checkmark.fill",
             color: VisionBridgeTheme.accent
         ),
@@ -19,7 +19,7 @@ struct OnboardingView: View {
         ),
         OnboardingPage(
             title: "Assistive Guidance",
-            description: "VisionBridge adds a layer of awareness—it does not replace a cane or guide dog. Distances are estimates. Two-finger double-tap mutes speech for 10 seconds.",
+            description: "Bridge adds a layer of awareness—it does not replace a cane or guide dog. Distances are estimates. Two-finger double-tap mutes speech for 10 seconds.",
             icon: "waveform.path.ecg",
             color: VisionBridgeTheme.warmAlert
         ),
@@ -64,7 +64,7 @@ struct OnboardingView: View {
                         withAnimation(.easeOut(duration: 0.25)) { shouldShowOnboarding = false }
                     }
                 } label: {
-                    Text(currentPage == pages.count - 1 ? "Start VisionBridge" : "Continue")
+                    Text(currentPage == pages.count - 1 ? "Start Bridge" : "Continue")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundStyle(currentPage == pages.count - 1 ? Color.black : Color.primary)

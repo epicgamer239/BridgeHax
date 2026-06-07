@@ -6,7 +6,7 @@ struct ContentView: View {
     @EnvironmentObject private var app: AppViewModel
     @EnvironmentObject private var hearing: HearingEngine
     @State private var showingSettings = false
-    @AppStorage(VisionBridgeFeatureKey.payloadHUD) private var showPayloadHUD: Bool = true
+    @AppStorage(VisionBridgeFeatureKey.payloadHUD) private var showPayloadHUD: Bool = false
     @AppStorage(VisionBridgeFeatureKey.haptics) private var hapticsOn: Bool = true
     @State private var speechMutedBanner = false
 
@@ -61,10 +61,8 @@ struct ContentView: View {
                         if speechMutedBanner {
                             mutedBanner
                         }
-                        statusStrip
                         if !app.modelAvailable { modelCallout }
                         visualStage
-                        statsStrip
                         if showPayloadHUD, app.modelAvailable, let s = app.session {
                             PayloadHUD(session: s, hapticsEnabled: hapticsOn)
                                 .padding(.horizontal, 4)
@@ -93,7 +91,7 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("VisionBridge")
+                    Text("Bridge")
                         .font(.system(size: 32, weight: .bold))
                         .lineLimit(1)
                 }
@@ -169,23 +167,6 @@ struct ContentView: View {
         }
     }
 
-    private var statusStrip: some View {
-        HStack(spacing: 12) {
-            StatusChip(
-                systemImage: hearing.isUsingOnDevicePayload ? "iphone" : "dot.radiowaves.left.and.right",
-                title: hearing.isUsingOnDevicePayload ? "iPhone" : "Audio",
-                subtitle: hearing.isUsingOnDevicePayload ? "On-device" : "Active",
-                color: hearing.isUsingOnDevicePayload ? VisionBridgeTheme.accent : VisionBridgeTheme.warmAlert
-            )
-            StatusChip(
-                systemImage: "text.bubble",
-                title: "Speech",
-                subtitle: "Realtime",
-                color: VisionBridgeTheme.info
-            )
-        }
-    }
-
     private var modelCallout: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
@@ -241,55 +222,7 @@ struct ContentView: View {
                 }
             }
             #endif
-            
-            if app.isScanning {
-                radarContainer
-            }
         }
-    }
-
-    private var radarContainer: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(app.isScanning ? "Spatial field" : "Radar (Idle)")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-            GlassPanel(padding: 0, cornerRadius: VisionBridgeTheme.cornerL) {
-                RadarView(
-                    objects: app.session?.lastPayload?.objects ?? [],
-                    alertActive: hearing.alertActive
-                )
-            }
-            .frame(height: 300)
-            .accessibilityLabel("Spatial Field")
-            .accessibilityHint("A real-time radar showing nearby objects. High priority items are spoken through the hearing engine.")
-        }
-    }
-
-    private var statsStrip: some View {
-        Group {
-            if app.isScanning {
-                GlassPanel(padding: 0, cornerRadius: VisionBridgeTheme.cornerL) {
-                    HStack(spacing: 0) {
-                        StatPill(label: "Alert", value: app.threatLabel, emphasis: .high)
-                        divider
-                        StatPill(label: "Objects", value: "\(app.objectCount)", emphasis: .normal)
-                        divider
-                        StatPill(label: "Latency", value: app.latencyLine, emphasis: .muted)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
-                }
-            } else {
-                EmptyView()
-            }
-        }
-    }
-
-    private var divider: some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.1))
-            .frame(width: 1)
-            .frame(maxHeight: 44)
     }
 
     private var scanDock: some View {
@@ -299,21 +232,19 @@ struct ContentView: View {
                     app.setScanning(!app.isScanning)
                 }
             } label: {
-                VStack(spacing: 16) {
-                    Image(systemName: app.isScanning ? "eye.slash.circle.fill" : "eye.circle.fill")
-                        .font(.system(size: 48, weight: .bold))
-                    Text(app.isScanning ? "DEACTIVATE BRIDGE" : "ACTIVATE BRIDGE")
-                        .font(.title2.weight(.black))
-                        .tracking(1.5)
+                HStack(spacing: 12) {
+                    Image(systemName: app.isScanning ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.system(size: 28, weight: .semibold))
+                    Text(app.isScanning ? "Stop Bridge" : "Start Bridge")
+                        .font(.headline.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: app.isScanning ? 88 : min(560, UIScreen.main.bounds.height * 1.00))
-                .padding(.vertical, app.isScanning ? 12 : 0)
+                .padding(.vertical, 16)
             }
             .buttonStyle(PrimaryDockButtonStyle(isOn: app.isScanning, enabled: app.modelAvailable))
             .disabled(!app.modelAvailable)
-            .accessibilityLabel(app.isScanning ? "Deactivate bridge" : "Activate bridge")
-            .accessibilityHint("Double tap to toggle the vision engine. When on, the app will speak nearby objects automatically.")
+            .accessibilityLabel(app.isScanning ? "Stop Bridge" : "Start Bridge")
+            .accessibilityHint("Double tap to start or stop Bridge. When on, nearby objects are spoken automatically.")
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)
@@ -325,73 +256,10 @@ struct ContentView: View {
         }
     }
 
-    // Dock sizing helpers
-    private var dockExpandedHeight: CGFloat {
-        min(560, UIScreen.main.bounds.height * 1.00)
-    }
-
-    private var dockCollapsedHeight: CGFloat { 88 }
-
-    private var dockBottomPadding: CGFloat {
-        // Add a little extra spacing so content doesn't butt right up to the dock
-        (app.isScanning ? dockCollapsedHeight : dockExpandedHeight) + 24
-    }
+    private var dockBottomPadding: CGFloat { 100 }
 }
 
 // MARK: - Subviews
-
-private struct StatusChip: View {
-    var systemImage: String
-    var title: String
-    var subtitle: String
-    var color: Color
-
-    var body: some View {
-        GlassPanel(padding: 12, cornerRadius: VisionBridgeTheme.cornerM) {
-            HStack(spacing: 10) {
-                Image(systemName: systemImage)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(color)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(title)
-                        .font(.subheadline.weight(.semibold))
-                    Text(subtitle)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-            }
-        }
-    }
-}
-
-private struct StatPill: View {
-    enum Emphasis { case high, normal, muted }
-    var label: String
-    var value: String
-    var emphasis: Emphasis
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(label)
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(.tertiary)
-            Text(value)
-                .font(.subheadline.weight(.bold))
-                .monospacedDigit()
-                .foregroundStyle(foreground)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-    }
-
-    private var foreground: some ShapeStyle {
-        switch emphasis {
-        case .high: VisionBridgeTheme.accent
-        case .normal: Color.primary
-        case .muted: Color.secondary
-        }
-    }
-}
 
 private struct PrimaryDockButtonStyle: ButtonStyle {
     var isOn: Bool

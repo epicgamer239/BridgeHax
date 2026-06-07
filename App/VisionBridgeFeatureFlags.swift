@@ -72,6 +72,6 @@ enum VisionBridgeFeatureFlags {
     }
 
     static var payloadHUD: Bool {
-        d.object(forKey: VisionBridgeFeatureKey.payloadHUD) == nil ? true : d.bool(forKey: VisionBridgeFeatureKey.payloadHUD)
+        d.object(forKey: VisionBridgeFeatureKey.payloadHUD) == nil ? false : d.bool(forKey: VisionBridgeFeatureKey.payloadHUD)
     }
 }
