@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VisionBridge — Live Judge View</title>
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --panel: #12151c;
+      --border: #2a3142;
+      --text: #e8eaef;
+      --muted: #8b95a8;
+      --go: #3ecf8e;
+      --warn: #f5a524;
+      --acc: #6ea8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; line-height: 1.45;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+    header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem; margin-bottom: 1.25rem; }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0; letter-spacing: -0.02em; }
+    .badge {
+      display: inline-block; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.75rem;
+      background: var(--panel); border: 1px solid var(--border); color: var(--acc);
+    }
+    .grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem 1.1rem; overflow: hidden;
+    }
+    .card h2 { margin: 0 0 0.75rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 600; }
+    #cv-wrap { position: relative; width: 100%; aspect-ratio: 4/3; background: #000; border-radius: 8px; }
+    #cv { display: block; width: 100%; height: 100%; }
+    .stats { display: flex; flex-direction: column; gap: 0.6rem; font-variant-numeric: tabular-nums; }
+    .row { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.9rem; }
+    .row span:last-child { color: var(--go); text-align: right; }
+    .narr { font-size: 0.88rem; color: var(--text); }
+    .narr li { margin: 0.25rem 0; color: var(--muted); }
+    .lens-ok { color: var(--go) !important; }
+    .lens-warn { color: var(--warn) !important; }
+    .err { color: #f55; }
+    .pulse { animation: p 1.2s ease-in-out infinite; }
+    @keyframes p { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+    footer { margin-top: 1.5rem; font-size: 0.75rem; color: var(--muted); }
+    a { color: var(--acc); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>VisionBridge — <span class="badge">judge + demo</span></h1>
+      <span class="badge" id="ver">v…</span>
+    </header>
+    <div class="grid">
+      <div class="card">
+        <h2>Bounding boxes (normalized → canvas)</h2>
+        <div id="cv-wrap">
+          <canvas id="cv" width="640" height="480"></canvas>
+        </div>
+        <p id="meta" class="narr" style="margin: 0.6rem 0 0; font-size: 0.8rem;"></p>
+      </div>
+      <div class="card">
+        <h2>Service</h2>
+        <div class="stats" id="svc">
+          <div class="row"><span>Uptime</span><span id="up">—</span></div>
+          <div class="row"><span>Source</span><span id="src">—</span></div>
+          <div class="row"><span>Frame id</span><span id="fid">—</span></div>
+          <div class="row"><span>Vision latency</span><span id="lat">—</span></div>
+          <div class="row"><span>Emit (effective)</span><span id="hz">—</span></div>
+          <div class="row"><span>Avg detect ms</span><span id="av">—</span></div>
+        </div>
+        <h2 style="margin-top: 1.1rem;">Hints (for UI / TTS / judges)</h2>
+        <ul class="narr" id="lines"></ul>
+        <h2>Raw <code style="font-size:0.7rem;">/frame</code> keys</h2>
+        <div class="narr" id="keys" style="font-size:0.75rem; word-break: break-all;"></div>
+      </div>
+    </div>
+    <p style="margin:1.2rem 0 0.5rem;">
+      <button id="tts" type="button" class="btn"
+        style="font:inherit;padding:0.45rem 0.9rem;border-radius:8px;border:1px solid #2a3142;
+        background:#1a1f2a;color:#6ea8ff;cursor:pointer;">
+        Read hints aloud (browser TTS) — for judges
+      </button>
+    </p>
+    <footer>
+      Same JSON as iOS <code>FramePayload</code> &amp; <code>POST /infer</code>.
+      <a href="/health" target="_blank" rel="noopener">/health</a> ·
+      <a href="/frame" target="_blank" rel="noopener">/frame</a>
+    </footer>
+  </div>
+  <script>
+    const CLASS_COL = {
+      person: "#3ecf8e", car: "#6ea8ff", bicycle: "#b388ff", motorcycle: "#ff8c69",
+      truck: "#a8c0d8", bus: "#f0c674", default: "#88a0b8"
+    };
+    const cv = document.getElementById("cv");
+    const ctx = cv.getContext("2d");
+    const W = 640, H = 480;
+    function drawFrame(frame) {
+      ctx.fillStyle = "#0d1117";
+      ctx.fillRect(0, 0, W, H);
+      const objs = (frame && frame.objects) || [];
+      document.getElementById("meta").textContent = objs.length
+        ? objs.length + " detections — pan is horizontal stereo cue, distance = monocular est."
+        : "Waiting for objects… (or POST a JPEG to /infer)";
+      objs.forEach((o, i) => {
+        const b = o.bbox;
+        if (!b) return;
+        const x = (b.x_center_norm - b.width_norm / 2) * W;
+        const y = (b.y_center_norm - b.height_norm / 2) * H;
+        const bw = b.width_norm * W, bh = b.height_norm * H;
+        const c = CLASS_COL[o.class] || CLASS_COL.default;
+        ctx.strokeStyle = c;
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(x, y, bw, bh);
+        const tag = o.class + " " + (o.distance_m != null ? o.distance_m.toFixed(1) + "m" : "");
+        ctx.font = "600 12px " + getComputedStyle(document.body).fontFamily;
+        ctx.fillStyle = c;
+        const tw = ctx.measureText(tag).width;
+        ctx.fillRect(x, Math.max(0, y - 16), tw + 8, 16);
+        ctx.fillStyle = "#0a0c10";
+        ctx.fillText(tag, x + 4, y - 4);
+      });
+    }
+    async function tick() {
+      let health = {};
+      try {
+        const r = await fetch("/health");
+        health = await r.json();
+        document.getElementById("ver").textContent = (health.hints && health.hints.visual_version) || "—";
+        const up = health.uptime_s;
+        document.getElementById("up").textContent = up != null ? up.toFixed(0) + "s" : "—";
+        document.getElementById("src").textContent = (health.inference_source || "—");
+        document.getElementById("fid").textContent = String(health.frame_id != null ? health.frame_id : "—");
+        document.getElementById("lat").textContent = "—";
+        document.getElementById("hz").textContent = (health.effective_emit_hz != null ? health.effective_emit_hz : "—") + " Hz";
+        document.getElementById("av").textContent = (health.avg_detection_ms != null ? health.avg_detection_ms : "—") + " ms";
+        const h = health.hints || {};
+        const ul = document.getElementById("lines");
+        ul.innerHTML = "";
+        (h.narration_lines || ["…"]).forEach((line) => {
+          const li = document.createElement("li");
+          li.textContent = line;
+          ul.appendChild(li);
+        });
+        if (h.lens_status) {
+          const li = document.createElement("li");
+          li.textContent = "lens: " + h.lens_status;
+          li.className = h.lens_status === "warning" ? "lens-warn" : "lens-ok";
+          ul.appendChild(li);
+        }
+      } catch (e) {
+        document.getElementById("ver").classList.add("err", "pulse");
+      }
+      try {
+        const r = await fetch("/frame");
+        const frame = await r.json();
+        if (frame.vision_duration_ms != null) {
+          document.getElementById("lat").textContent = frame.vision_duration_ms + " ms";
+        }
+        document.getElementById("keys").textContent = "frame_id " + (frame.frame_id != null ? frame.frame_id : "?")
+          + " · objects " + ((frame.objects && frame.objects.length) || 0);
+        drawFrame(frame);
+      } catch (e) {
+        ctx.fillStyle = "#300";
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#f55";
+        ctx.fillText("Could not read /frame", 16, 32);
+      }
+    }
+    tick();
+    setInterval(tick, 300);
+    let lastSpoken = "";
+    document.getElementById("tts").addEventListener("click", async () => {
+      try {
+        const r = await fetch("/health");
+        const d = await r.json();
+        const lines = (d.hints && d.hints.narration_lines) || [];
+        const text = lines.join(". ") || "No hints yet";
+        if (text === lastSpoken) {
+          return;
+        }
+        lastSpoken = text;
+        if (!window.speechSynthesis) { alert("Browser TTS not available"); return; }
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.0;
+        window.speechSynthesis.speak(u);
+      } catch (e) {
+        alert("Could not read hints: " + e);
+      }
+    });
+  </script>
+</body>
+</html>
