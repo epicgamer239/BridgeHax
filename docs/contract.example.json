@@ -1,0 +1,28 @@
+{
+  "frame_id": 1042,
+  "timestamp_ms": 1714052800123,
+  "vision_duration_ms": 34,
+  "camera": {
+    "lens_status": "ok",
+    "lens_laplacian_var": 235.4,
+    "lens_announce": null
+  },
+  "objects": [
+    {
+      "object_id": "car_001",
+      "class": "car",
+      "confidence": 0.87,
+      "bbox": {
+        "x_center_norm": 0.32,
+        "y_center_norm": 0.61,
+        "width_norm": 0.18,
+        "height_norm": 0.14
+      },
+      "distance_m": 8.4,
+      "distance_confidence": "medium",
+      "pan_value": -0.36,
+      "velocity_mps": 2.1,
+      "priority": "NORMAL"
+    }
+  ]
+}

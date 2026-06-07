@@ -1,0 +1,22 @@
+# VisionBridge Release Checklist (RC)
+
+- [ ] **Owner: iOS** — App builds clean in Xcode for latest simulator and target device.
+  - **Accept:** `xcodebuild` succeeds; no critical runtime crash on launch.
+- [ ] **Owner: ML** — `yolov8m-oiv7.mlpackage` bundled and detected by app.
+  - **Accept:** model loads, scanning starts, detections appear.
+- [ ] **Owner: iOS** — TTS-only mode verified (no spatial audio behavior).
+  - **Accept:** settings and UI copy match behavior.
+- [ ] **Owner: ML** — Distance confidence formatter active for all distance speech.
+  - **Accept:** no raw numeric-only strings bypassing formatter.
+- [ ] **Owner: iOS** — Critical-only mode verified.
+  - **Accept:** <=2 utterances per 5s in dense scene.
+- [ ] **Owner: QA** — Local telemetry ring buffer and export tested.
+  - **Accept:** JSON export works from settings.
+- [ ] **Owner: QA** — No-detection announcement cadence verified.
+  - **Accept:** one line every >=10s when scanning and no detections.
+- [ ] **Owner: QA** — Camera denied and model missing one-shot announcements verified.
+  - **Accept:** each message spoken once only.
+- [ ] **Owner: QA** — Two-finger double-tap mute + resume tested.
+  - **Accept:** mute for 10s, tap banner resumes.
+- [ ] **Owner: Docs** — README + PRD updated for TTS-only, estimated distance, limitations.
+  - **Accept:** no contradictory language.
